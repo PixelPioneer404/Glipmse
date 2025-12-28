@@ -1,8 +1,9 @@
-import { Search, SearchX } from 'lucide-react'
 import React from 'react'
 import { useSelector } from 'react-redux'
 import MediaCard from '../components/MediaCard'
 import loadingAnimation from '../lottie/loading.lottie'
+import getStartedAnimation from '../lottie/getStarted.lottie'
+import notFoundAnimation from '../lottie/notFound.lottie'
 import { DotLottieReact } from '@lottiefiles/dotlottie-react'
 
 const Videos = () => {
@@ -13,7 +14,7 @@ const Videos = () => {
     const currentTab = useSelector(state => state.search.tab)
 
     return (
-        <div className='w-screen mt-24 px-20 grid grid-cols-5 gap-y-8'>
+        <div className='w-screen mt-12 px-20 grid grid-cols-5 gap-y-8'>
             {loading && currentTab === 'videos'
                 ?
                 <div className="w-screen h-[50vh] flex justify-center items-center gap-3 -translate-x-20">
@@ -28,13 +29,20 @@ const Videos = () => {
                     ? query === ''
                         ?
                         <div className="w-screen h-[50vh] flex justify-center items-center gap-3 -translate-x-20">
-                            <Search size={24} className='text-white/80' />
-                            <p className="text-white text-2xl">Search for any videos...</p>
+                            <DotLottieReact
+                                src={getStartedAnimation}
+                                loop
+                                autoplay
+                                className='h-80'
+                            />
                         </div>
                         :
-                        <div className="w-screen h-[50vh] flex justify-center items-center gap-3 -translate-x-20">
-                            <SearchX size={24} className='text-white/80' />
-                            <p className="text-white text-2xl">No videos found</p>
+                        <div className="w-screen h-[50vh] flex justify-center items-center -translate-x-20">
+                            <DotLottieReact
+                                src={notFoundAnimation}
+                                autoplay
+                                className='w-70 h-70'
+                            />
                         </div>
                     :
                     result.map((video, idx) => (
