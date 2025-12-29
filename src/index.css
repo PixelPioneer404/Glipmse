@@ -7,3 +7,9 @@
 body {
     overflow-x: hidden;
 }
+
+/* @utilities {
+    .bg-gradient {
+        background: linear-gradient(to bottom, red 70%, transprent);
+    }
+} */

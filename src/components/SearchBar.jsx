@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { setErrors, setLoading, setQuery, setResult } from '../redux/slices/serachSlice'
 import { getGifs, getPhotos, getVideos } from '../api/mediaApi'
+import { resetPhotoPage, resetVideoPage, setNextPhotoPage, setNextVideoPage, setTenorNext, resetTenorNext } from '../redux/slices/infiniteScrolling'
 
 const SearchBar = () => {
 
@@ -27,16 +28,32 @@ const SearchBar = () => {
                 e.preventDefault()
                 dispatch(setQuery(text))
                 dispatch(setLoading())
+                
+                // Reset pagination for new search
+                if (currentTab === 'photos') dispatch(resetPhotoPage())
+                else if (currentTab === 'videos') dispatch(resetVideoPage())
+                else if (currentTab === 'gifs') dispatch(resetTenorNext())
+                
                 try {
-                    if (currentTab === 'photos') dispatch(setResult(await getPhotos(text)))
-                    else if (currentTab === 'videos') dispatch(setResult(await getVideos(text)))
-                    else if (currentTab === 'gifs') dispatch(setResult(await getGifs(text)))
+                    if (currentTab === 'photos') {
+                        dispatch(setResult(await getPhotos(text)))
+                        dispatch(setNextPhotoPage())
+                    }
+                    else if (currentTab === 'videos') {
+                        dispatch(setResult(await getVideos(text)))
+                        dispatch(setNextVideoPage())
+                    }
+                    else if (currentTab === 'gifs') {
+                        const { results, next } = await getGifs(text)
+                        dispatch(setResult(results))
+                        dispatch(setTenorNext(next))
+                    }
                 } catch (err) {
                     dispatch(setErrors(err))
                 }
-                console.log(await getPhotos(text)) //for confirmation
-                console.log(await getVideos(text)) //for confirmation
-                console.log(await getGifs(text)) //for confirmation
+                // console.log(await getPhotos(text)) //for confirmation
+                // console.log(await getVideos(text)) //for confirmation
+                // console.log(await getGifs(text)) //for confirmation
             }}
             className="flex flex-row justify-center items-center gap-3">
             <div className="relative">

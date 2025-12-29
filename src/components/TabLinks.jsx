@@ -1,8 +1,9 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { NavLink } from 'react-router-dom'
-import { setResult, setTab } from '../redux/slices/serachSlice'
+import { setResult, setTab, setLoading } from '../redux/slices/serachSlice'
 import { getGifs, getPhotos, getVideos } from '../api/mediaApi'
+import { resetPhotoPage, resetVideoPage, resetTenorNext, setNextPhotoPage, setNextVideoPage, setTenorNext } from '../redux/slices/infiniteScrolling'
 
 const TabLinks = () => {
 
@@ -12,9 +13,24 @@ const TabLinks = () => {
     async function handleTab(tabName) {
         dispatch(setTab(tabName))
         if (query !== '') {
-            if (tabName === 'photos') dispatch(setResult(await getPhotos(query)))
-            else if (tabName === 'videos') dispatch(setResult(await getVideos(query)))
-            else if (tabName === 'gifs') dispatch(setResult(await getGifs(query)))
+            dispatch(setLoading())
+            
+            if (tabName === 'photos') {
+                dispatch(resetPhotoPage())
+                dispatch(setResult(await getPhotos(query)))
+                dispatch(setNextPhotoPage())
+            }
+            else if (tabName === 'videos') {
+                dispatch(resetVideoPage())
+                dispatch(setResult(await getVideos(query)))
+                dispatch(setNextVideoPage())
+            }
+            else if (tabName === 'gifs') {
+                dispatch(resetTenorNext())
+                const { results, next } = await getGifs(query)
+                dispatch(setResult(results))
+                dispatch(setTenorNext(next))
+            }
         }
     }
 
