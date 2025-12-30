@@ -102,7 +102,7 @@ const Videos = () => {
                     :
                     result.map((video, idx) => (
                         video?.video_files?.[0]?.link && (
-                            <MediaCard key={idx} src={video.video_files[0].link} />
+                            <MediaCard key={idx} id={video.id} src={video.video_files[0].link} />
                         )
                     ))
 

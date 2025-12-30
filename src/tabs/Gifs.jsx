@@ -102,7 +102,7 @@ const Gifs = () => {
                     :
                     result.map((gif, idx) => (
                         gif?.media_formats?.gif?.url && (
-                            <MediaCard key={idx} src={gif.media_formats.gif.url} />
+                            <MediaCard key={idx} id={gif.id} src={gif.media_formats.gif.url} />
                         )
                     ))
 

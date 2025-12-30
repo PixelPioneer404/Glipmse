@@ -51,9 +51,9 @@ const SearchBar = () => {
                 } catch (err) {
                     dispatch(setErrors(err))
                 }
-                // console.log(await getPhotos(text)) //for confirmation
-                // console.log(await getVideos(text)) //for confirmation
-                // console.log(await getGifs(text)) //for confirmation
+                console.log(await getPhotos(text)) //for confirmation
+                console.log(await getVideos(text)) //for confirmation
+                console.log(await getGifs(text)) //for confirmation
             }}
             className="flex flex-row justify-center items-center gap-3">
             <div className="relative">

@@ -9,6 +9,7 @@ import Collections from './pages/Collections'
 import NotFound404 from './pages/NotFound404'
 import { useDispatch } from 'react-redux'
 import { setTab } from './redux/slices/serachSlice'
+import ViewImageModal from './components/ViewImageModal'
 
 const App = () => {
 
@@ -24,6 +25,7 @@ const App = () => {
   return (
     <div className="relative w-screen">
       <div className="fixed inset-0 bg-black -z-1"></div>
+      <ViewImageModal />
       <Header />
       <div className="w-screen pt-16">
         <Routes>

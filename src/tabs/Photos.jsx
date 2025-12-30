@@ -103,7 +103,7 @@ const Photos = () => {
                     :
                     result.map((photo, idx) => (
                         photo?.urls?.regular && (
-                            <MediaCard key={idx} src={photo.urls.regular} alt={photo.alt_description} />
+                            <MediaCard key={idx} id={photo.id} src={photo.urls.regular} alt={photo.alt_description} />
                         )
                     ))
 
