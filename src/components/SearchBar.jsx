@@ -7,20 +7,21 @@ import { resetPhotoPage, resetVideoPage, setNextPhotoPage, setNextVideoPage, set
 
 const SearchBar = () => {
 
-    const [text, setText] = useState('')
     const dispatch = useDispatch()
     const currentTab = useSelector(state => state.search.tab)
+    const savedQuery = useSelector(state => state.search.query)
+    const [text, setText] = useState(savedQuery)
+
+    // Sync local text with Redux query on mount
+    useEffect(() => {
+        setText(savedQuery)
+    }, [savedQuery])
 
     function clearField() {
         setText('')
+        dispatch(setQuery(''))
+        dispatch(setResult([]))
     }
-
-    useEffect(() => {
-        if (text === '') {
-            dispatch(setQuery(''))
-            dispatch(setResult([]))
-        }
-    }, [text])
 
     return (
         <form

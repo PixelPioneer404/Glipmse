@@ -111,7 +111,7 @@ const ViewImageModal = ({ isAdded }) => {
 
     return (
         <div ref={containerRef} className="w-screen h-screen pointer-events-none fixed flex justify-center items-center z-9998 px-[10vw] py-[10vh]">
-            <div ref={overlayRef} className="opacity-0 absolute inset-0 bg-black/20 backdrop-blur-xl" />
+            <div ref={overlayRef} onClick={() => dispatch(setIsOpen(false))} className="opacity-0 absolute inset-0 bg-black/20 backdrop-blur-xl" />
             <div ref={actionsRef} className="opacity-0 size-full relative z-9999 rounded-4xl">
                 <div className="absolute top-2 right-0 translate-x-[150%] flex flex-col justify-center items-center gap-3 *:cursor-pointer *:transition-all *:duration-300 *:ease-in-out">
                     <button
@@ -123,9 +123,9 @@ const ViewImageModal = ({ isAdded }) => {
                         disabled={isDownloading}
                         className="w-12 h-12 flex justify-center items-center bg-white/80 rounded-full hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
                         {isDownloading ? (
-                            <Loader2 size={24} className="animate-spin" />
+                        <Loader2 size={24} className="animate-spin" />
                         ) : (
-                            <Download size={24} />
+                        <Download size={24} />
                         )}
                     </button>
                     <button className="w-12 h-12 flex justify-center items-center bg-white/80 rounded-full hover:scale-110 active:scale-95">
