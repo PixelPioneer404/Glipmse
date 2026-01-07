@@ -22,25 +22,25 @@ const MediaCard = ({ id, src, alt, type }) => {
     const isInCollection = collectionArray.some(item => item.id === id)
 
     return (
-        <div className='relative w-80 h-100'>
+        <div className='relative w-full aspect-square'>
             <div
                 id={id}
                 onClick={() => {
                     dispatch(setId(id))
                     dispatch(setIsOpen(true))
                 }}
-                className="size-full rounded-2xl bg-white/80 shadow-xl p-2 flex justify-center items-center group cursor-pointer">
+                className="size-full rounded-xl md:rounded-2xl bg-white/80 shadow-xl p-1.5 md:p-2 flex justify-center items-center group cursor-pointer">
                 {!isMediaLoaded &&
                     <div className="absolute inset-0 flex justify-center items-center">
                         <DotLottieReact
                             src={loadingAnimation}
                             loop
                             autoplay
-                            className='w-46 h-46'
+                            className='w-24 h-24 md:w-46 md:h-46'
                         />
                     </div>
                 }
-                <div className="w-full h-full overflow-hidden rounded-xl">
+                <div className="w-full h-full overflow-hidden rounded-lg md:rounded-xl">
                     {(mediaType === 'photos' || mediaType === 'gifs')
                         ? <img onLoad={() => setIsMediaLoaded(true)} src={src} alt={alt} className={`${isMediaLoaded ? 'block' : 'hidden'} w-full h-full object-center object-cover group-hover:scale-110 transition-all duration-300 ease-in-out`} />
                         : <video onLoadedData={() => setIsMediaLoaded(true)} src={src} autoPlay muted loop className={`${isMediaLoaded ? 'block' : 'hidden'} w-full h-full object-center object-cover group-hover:scale-110 transition-all duration-300 ease-in-out`}></video>
@@ -82,10 +82,10 @@ const MediaCard = ({ id, src, alt, type }) => {
                         localStorage.setItem('collectionData', JSON.stringify(newArray))
                     }
                 }}
-                className="absolute bottom-6 right-6 rounded-full cursor-pointer active:scale-90 transition-all duration-300 ease-in-out w-12 h-12 shadow-2xl bg-white/90 flex justify-center items-center">
+                className="absolute bottom-2 right-2 md:bottom-6 md:right-6 rounded-full cursor-pointer active:scale-90 transition-all duration-300 ease-in-out w-10 h-10 md:w-12 md:h-12 shadow-2xl bg-white/90 flex justify-center items-center">
                 {isInCollection
-                    ? <i className="ri-heart-fill text-2xl text-red-600/80"></i>
-                    : <i className="ri-heart-line text-2xl text-black/80"></i>
+                    ? <i className="ri-heart-fill text-xl md:text-2xl text-red-600/80"></i>
+                    : <i className="ri-heart-line text-xl md:text-2xl text-black/80"></i>
                 }
             </button>
         </div>

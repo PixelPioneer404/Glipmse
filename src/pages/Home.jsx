@@ -10,11 +10,11 @@ const Home = () => {
                 style={{
                     background: 'linear-gradient(to bottom, black 60%, transparent)'
                 }}
-                className="fixed top-16 flex flex-col justify-center items-center gap-6 z-999 w-screen pb-25">
+                className="fixed top-16 flex flex-col justify-center items-center gap-3 md:gap-6 z-999 w-screen pb-16 md:pb-25">
                 <SearchBar />
                 <TabLinks />
             </div>
-            <div className="mt-30">
+            <div className="mt-24 md:mt-30">
                 <Outlet />
             </div>
         </div>

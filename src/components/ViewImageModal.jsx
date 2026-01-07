@@ -128,10 +128,11 @@ const ViewImageModal = () => {
     }
 
     return (
-        <div ref={containerRef} className="w-screen h-screen pointer-events-none fixed flex justify-center items-center z-9998 px-[10vw] py-[10vh]">
+        <div ref={containerRef} className="w-screen h-screen pointer-events-none fixed flex justify-center items-center z-9998 px-4 md:px-[10vw] py-4 md:py-[10vh]">
             <div ref={overlayRef} onClick={() => dispatch(setIsOpen(false))} className="opacity-0 absolute inset-0 bg-black/20 backdrop-blur-xl" />
-            <div ref={actionsRef} className="opacity-0 size-full relative z-9999 rounded-4xl">
-                <div className="absolute top-2 right-0 translate-x-[150%] flex flex-col justify-center items-center gap-3 *:cursor-pointer *:transition-all *:duration-300 *:ease-in-out">
+            <div ref={actionsRef} className="opacity-0 size-full relative z-9999 rounded-2xl md:rounded-4xl flex flex-col">
+                {/* Desktop buttons - top right */}
+                <div className="hidden md:flex absolute top-2 right-0 translate-x-[150%] flex-col justify-center items-center gap-3 *:cursor-pointer *:transition-all *:duration-300 *:ease-in-out">
                     <button
                         onClick={() => dispatch(setIsOpen(false))} className="w-12 h-12 flex justify-center items-center bg-white/80 rounded-full hover:scale-110 active:scale-95">
                         <X size={24} className='pointer-events-none' />
@@ -183,25 +184,84 @@ const ViewImageModal = () => {
                         }
                     </button>
                 </div>
-                <div className="absolute inset-0 z-9999 flex justify-center items-center">
+                <div className="pointer-events-none absolute inset-0 z-9999 flex justify-center items-center">
                     {!isMediaLoaded &&
                         <DotLottieReact
                             src={loadingAnimation}
                             loop
                             autoplay
-                            className='w-46 h-46'
+                            className='w-32 h-32 md:w-46 md:h-46'
                         />
                     }
                 </div>
-                <div ref={imgContainerRef} className="scale-60 opacity-0 w-auto h-full flex justify-center items-center p-2 bg-white/80 rounded-3xl">
-                    {(() => {
-                        const item = dataSource.find(el => el.id === clickedId)
-                        const mediaType = item?.type || currentTab
+                <div ref={imgContainerRef} className="scale-60 opacity-0 w-auto h-full flex flex-col justify-center items-center">
+                    <div className="flex-1 flex justify-center items-center p-1.5 md:p-2 bg-white/80 rounded-2xl md:rounded-3xl w-full">
+                        {(() => {
+                            const item = dataSource.find(el => el.id === clickedId)
+                            const mediaType = item?.type || currentTab
 
-                        return (mediaType === 'photos' || mediaType === 'gifs')
-                            ? <img onLoad={() => setIsMediaLoaded(true)} src={src} className={`${isMediaLoaded ? 'block' : 'hidden'} h-full object-center object-contain rounded-[20px] group-hover:scale-110 transition-all duration-300 ease-in-out`} />
-                            : <video onLoadedData={() => setIsMediaLoaded(true)} src={src} autoPlay muted loop className={`${isMediaLoaded ? 'block' : 'hidden'} h-full object-center rounded-[20px] object-contain group-hover:scale-110 transition-all duration-300 ease-in-out`}></video>
-                    })()}
+                            return (mediaType === 'photos' || mediaType === 'gifs')
+                                ? <img onLoad={() => setIsMediaLoaded(true)} src={src} className={`${isMediaLoaded ? 'block' : 'hidden'} h-full object-center object-contain rounded-xl md:rounded-[20px] group-hover:scale-110 transition-all duration-300 ease-in-out`} />
+                                : <video onLoadedData={() => setIsMediaLoaded(true)} src={src} autoPlay muted loop className={`${isMediaLoaded ? 'block' : 'hidden'} h-full object-center rounded-xl md:rounded-[20px] object-contain group-hover:scale-110 transition-all duration-300 ease-in-out`}></video>
+                        })()}
+                    </div>
+                    
+                    {/* Mobile buttons - bottom */}
+                    <div className="md:hidden flex justify-center items-center gap-4 mt-4 w-full relative z-[10000]">
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                dispatch(setIsOpen(false))
+                            }} 
+                            className="flex-1 h-12 flex justify-center items-center bg-white/80 rounded-full hover:scale-105 active:scale-95 transition-all">
+                            <X size={20} />
+                        </button>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                handleDownload()
+                            }}
+                            disabled={isDownloading}
+                            className="flex-1 h-12 flex justify-center items-center bg-white/80 rounded-full hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all">
+                            {isDownloading ? (
+                                <Loader2 size={20} className="animate-spin" />
+                            ) : (
+                                <Download size={20} />
+                            )}
+                        </button>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                const item = result.find(item => item.id === clickedId) || collectionArray.find(item => item.id === clickedId)
+                                
+                                if (item) {
+                                    if (!isInCollection) {
+                                        let newArray = [...collectionArray, item]
+                                        dispatch(setCollectionArray(newArray))
+                                        localStorage.setItem('collectionData', JSON.stringify(newArray))
+                                    } else {
+                                        let newArray = collectionArray.filter(collectionEl => collectionEl.id !== clickedId)
+                                        dispatch(setCollectionArray(newArray))
+                                        localStorage.setItem('collectionData', JSON.stringify(newArray))
+                                    }
+                                    
+                                    if (!isCollectionsPage && result.length > 0) {
+                                        const modifiedResult = result.map(resultItem => {
+                                            return resultItem.id === clickedId
+                                                ? { ...resultItem, isAdded: !resultItem.isAdded }
+                                                : resultItem
+                                        })
+                                        dispatch(setResult(modifiedResult))
+                                    }
+                                }
+                            }}
+                            className="flex-1 h-12 flex justify-center items-center bg-white/80 rounded-full hover:scale-105 active:scale-95 transition-all">
+                            {isInCollection
+                                ? <i className="ri-heart-fill text-xl text-red-600/80"></i>
+                                : <i className="ri-heart-line text-xl text-black/80"></i>
+                            }
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

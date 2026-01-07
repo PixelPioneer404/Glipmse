@@ -56,17 +56,17 @@ const SearchBar = () => {
                     dispatch(setErrors(err))
                 }
             }}
-            className="flex flex-row justify-center items-center gap-3" >
-            <div className="relative">
+            className="flex flex-row justify-center items-center gap-2 md:gap-3 w-full px-4 md:px-0" >
+            <div className="relative flex-1 md:flex-none">
                 <div className="z-1 absolute top-1/2 -translate-y-1/2 left-3">
-                    <Search size={16} className='text-white/40' />
+                    <Search size={14} className='text-white/40 md:w-4 md:h-4' />
                 </div>
                 {text !== '' &&
                     <button
                         type="button"
                         onClick={clearField}
                         className="z-1 absolute top-1/2 -translate-y-1/2 right-3 cursor-pointer">
-                        <X strokeWidth={1} size={16} className='text-white/80' />
+                        <X strokeWidth={1} size={14} className='text-white/80 md:w-4 md:h-4' />
                     </button>
                 }
                 <input
@@ -78,10 +78,10 @@ const SearchBar = () => {
                     placeholder='Search anything...'
                     required
                     autoFocus
-                    className="relative z-0 pl-9 pr-6 py-2 rounded-full text-sm text-white/60 font-medium bg-slate-800/40 backdrop-blur-2xl border-0.5 border-white/20 outline-none"
+                    className="relative z-0 w-full md:w-auto pl-8 md:pl-9 pr-8 md:pr-6 py-2.5 md:py-2 rounded-full text-xs md:text-sm text-white/60 font-medium bg-slate-800/40 backdrop-blur-2xl border-0.5 border-white/20 outline-none"
                 />
             </div>
-            <button type='submit' className="px-6 py-2 bg-slate-800 rounded-full cursor-pointer text-white/60 font-medium text-sm">Search</button>
+            <button type='submit' className="px-4 md:px-6 py-2.5 md:py-2 bg-slate-800 rounded-full cursor-pointer text-white/60 font-medium text-xs md:text-sm whitespace-nowrap">Search</button>
         </form >
     )
 }

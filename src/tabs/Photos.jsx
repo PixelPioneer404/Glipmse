@@ -71,34 +71,34 @@ const Photos = () => {
     }, [hasMore, query, currentTab, isFetching, dispatch])
 
     return (
-        <div className='relative w-screen mt-12 px-20 grid grid-cols-5 gap-y-8'>
+        <div className='relative w-screen mt-12 px-4 md:px-20 grid grid-cols-2 md:grid-cols-5 gap-y-4 md:gap-y-8 gap-x-4'>
             {loading && currentTab === 'photos'
                 ?
-                <div className="w-screen h-[50vh] flex justify-center items-center gap-3 -translate-x-20">
+                <div className="w-screen h-[50vh] flex justify-center items-center gap-3 -translate-x-4 md:-translate-x-20">
                     <DotLottieReact
                         src={loadingAnimation}
                         loop
                         autoplay
-                        className='w-56 h-56'
+                        className='w-32 h-32 md:w-56 md:h-56'
                     />
                 </div>
                 : result.length === 0
                     ? query === ''
                         ?
-                        <div className="w-screen h-[50vh] flex flex-col justify-center items-center -translate-x-20">
+                        <div className="w-screen h-[50vh] flex flex-col justify-center items-center -translate-x-4 md:-translate-x-20">
                             <DotLottieReact
                                 src={getStartedAnimation}
                                 loop
                                 autoplay
-                                className='h-80'
+                                className='h-48 md:h-80'
                             />
                         </div>
                         :
-                        <div className="w-screen h-[50vh] flex justify-center items-center -translate-x-20">
+                        <div className="w-screen h-[50vh] flex justify-center items-center -translate-x-4 md:-translate-x-20">
                             <DotLottieReact
                                 src={notFoundAnimation}
                                 autoplay
-                                className='w-70 h-70'
+                                className='w-48 h-48 md:w-70 md:h-70'
                             />
                         </div>
                     :
@@ -115,7 +115,7 @@ const Photos = () => {
                         src={loadingAnimation}
                         loop
                         autoplay
-                        className='w-40 h-40'
+                        className='w-24 h-24 md:w-40 md:h-40'
                     />
                 }
             </div>

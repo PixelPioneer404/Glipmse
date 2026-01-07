@@ -38,7 +38,7 @@ const TabLinks = () => {
     }
 
     return (
-        <div className="flex justify-center items-center gap-4 font-medium text-md">
+        <div className="flex justify-center items-center gap-3 md:gap-4 font-medium text-sm md:text-md">
             <NavLink
                 onClick={() => handleTab('photos')}
                 to='.'
