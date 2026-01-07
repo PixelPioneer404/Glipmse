@@ -45,7 +45,7 @@ const App = () => {
 
   return (
     <>
-      <div className="relative w-screen">
+      <div className="relative w-screen bg-black">
         <div className="fixed inset-0 bg-black -z-1"></div>
         <ViewImageModal />
         <Header />
