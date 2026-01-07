@@ -6,8 +6,11 @@ import { DotLottieReact } from '@lottiefiles/dotlottie-react'
 import gsap from 'gsap'
 import { setIsOpen } from '../redux/slices/openMediaSlice'
 import { download } from '../utils/downloadContent'
+import { setResult } from '../redux/slices/serachSlice'
+import { setCollectionArray } from '../redux/slices/collections'
+import { useLocation } from 'react-router-dom'
 
-const ViewImageModal = ({ isAdded }) => {
+const ViewImageModal = () => {
 
     const [src, setSrc] = useState(null)
     const [isDownloading, setIsDownloading] = useState(false)
@@ -15,6 +18,13 @@ const ViewImageModal = ({ isAdded }) => {
     const [isMediaLoaded, setIsMediaLoaded] = useState(false)
     const currentTab = useSelector(state => state.search.tab)
     const result = useSelector(state => state.search.result)
+    const collectionArray = useSelector(state => state.collection.collectionArray)
+
+    const location = useLocation()
+    const isCollectionsPage = location.pathname === '/collections'
+
+    // Use collectionArray on Collections page, otherwise use result
+    const dataSource = isCollectionsPage ? collectionArray : result
 
     const overlayRef = useRef(null)
     const actionsRef = useRef(null)
@@ -25,6 +35,9 @@ const ViewImageModal = ({ isAdded }) => {
     const isOpen = useSelector(state => state.viewContent.isOpen)
 
     const dispatch = useDispatch()
+
+    // Check if current item is in collection
+    const isInCollection = collectionArray.some(item => item.id === clickedId)
 
     function openImg() {
         gsap.to(containerRef.current, {
@@ -43,13 +56,18 @@ const ViewImageModal = ({ isAdded }) => {
             opacity: 1,
         })
 
-        let url = result.filter(photo => photo.id === clickedId)
-        if (currentTab === 'photos') {
-            setSrc(url[0].urls.regular)
-        } else if (currentTab === 'videos') {
-            setSrc(url[0].video_files[0].link)
-        } else {
-            setSrc(url[0].media_formats.gif.url)
+        let item = dataSource.find(photo => photo.id === clickedId)
+        if (!item) return
+
+        // Use item's type field if available, otherwise fall back to currentTab
+        const mediaType = item.type || currentTab
+
+        if (mediaType === 'photos') {
+            setSrc(item.urls.regular)
+        } else if (mediaType === 'videos') {
+            setSrc(item.video_files[0].link)
+        } else if (mediaType === 'gifs') {
+            setSrc(item.media_formats.gif.url)
         }
     }
 
@@ -102,7 +120,7 @@ const ViewImageModal = ({ isAdded }) => {
 
     async function handleDownload() {
         setIsDownloading(true)
-        await download(src, getExtension(currentTab), (status) => {
+        await download(src, currentTab, getExtension(currentTab), (status) => {
             if (status === 'complete' || status === 'error') {
                 setIsDownloading(false)
             }
@@ -123,13 +141,43 @@ const ViewImageModal = ({ isAdded }) => {
                         disabled={isDownloading}
                         className="w-12 h-12 flex justify-center items-center bg-white/80 rounded-full hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
                         {isDownloading ? (
-                        <Loader2 size={24} className="animate-spin" />
+                            <Loader2 size={24} className="animate-spin" />
                         ) : (
-                        <Download size={24} />
+                            <Download size={24} />
                         )}
                     </button>
-                    <button className="w-12 h-12 flex justify-center items-center bg-white/80 rounded-full hover:scale-110 active:scale-95">
-                        {isAdded
+                    <button
+                        onClick={() => {
+                            // Find the item in result or collectionArray
+                            const item = result.find(item => item.id === clickedId) || collectionArray.find(item => item.id === clickedId)
+                            
+                            if (item) {
+                                // Toggle collection state
+                                if (!isInCollection) {
+                                    // Add to collection
+                                    let newArray = [...collectionArray, item]
+                                    dispatch(setCollectionArray(newArray))
+                                    localStorage.setItem('collectionData', JSON.stringify(newArray))
+                                } else {
+                                    // Remove from collection
+                                    let newArray = collectionArray.filter(collectionEl => collectionEl.id !== clickedId)
+                                    dispatch(setCollectionArray(newArray))
+                                    localStorage.setItem('collectionData', JSON.stringify(newArray))
+                                }
+                                
+                                // Update result array to sync isAdded state if not on Collections page
+                                if (!isCollectionsPage && result.length > 0) {
+                                    const modifiedResult = result.map(resultItem => {
+                                        return resultItem.id === clickedId
+                                            ? { ...resultItem, isAdded: !resultItem.isAdded }
+                                            : resultItem
+                                    })
+                                    dispatch(setResult(modifiedResult))
+                                }
+                            }
+                        }}
+                        className="w-12 h-12 flex justify-center items-center bg-white/80 rounded-full hover:scale-110 active:scale-95">
+                        {isInCollection
                             ? <i className="ri-heart-fill translate-y-0.5 text-2xl text-red-600/80"></i>
                             : <i className="ri-heart-line translate-y-0.5 text-2xl text-black/80"></i>
                         }
@@ -146,10 +194,14 @@ const ViewImageModal = ({ isAdded }) => {
                     }
                 </div>
                 <div ref={imgContainerRef} className="scale-60 opacity-0 w-auto h-full flex justify-center items-center p-2 bg-white/80 rounded-3xl">
-                    {(currentTab === 'photos' || currentTab === 'gifs')
-                        ? <img onLoad={() => setIsMediaLoaded(true)} src={src} className={`${isMediaLoaded ? 'block' : 'hidden'} h-full object-center object-contain rounded-[20px] group-hover:scale-110 transition-all duration-300 ease-in-out`} />
-                        : <video onLoadedData={() => setIsMediaLoaded(true)} src={src} autoPlay muted loop className={`${isMediaLoaded ? 'block' : 'hidden'} h-full object-center rounded-[20px] object-contain group-hover:scale-110 transition-all duration-300 ease-in-out`}></video>
-                    }
+                    {(() => {
+                        const item = dataSource.find(el => el.id === clickedId)
+                        const mediaType = item?.type || currentTab
+
+                        return (mediaType === 'photos' || mediaType === 'gifs')
+                            ? <img onLoad={() => setIsMediaLoaded(true)} src={src} className={`${isMediaLoaded ? 'block' : 'hidden'} h-full object-center object-contain rounded-[20px] group-hover:scale-110 transition-all duration-300 ease-in-out`} />
+                            : <video onLoadedData={() => setIsMediaLoaded(true)} src={src} autoPlay muted loop className={`${isMediaLoaded ? 'block' : 'hidden'} h-full object-center rounded-[20px] object-contain group-hover:scale-110 transition-all duration-300 ease-in-out`}></video>
+                    })()}
                 </div>
             </div>
         </div>

@@ -6,8 +6,8 @@ import getStartedAnimation from '../lottie/getStarted.lottie'
 import notFoundAnimation from '../lottie/notFound.lottie'
 import { DotLottieReact } from '@lottiefiles/dotlottie-react'
 import { setResult } from '../redux/slices/serachSlice'
-import { getVideos } from '../api/mediaApi'
 import { setHasMore, setNextVideoPage } from '../redux/slices/infiniteScrolling'
+import { fetchMediaData } from '../utils/dataFetcher'
 
 const Videos = () => {
 
@@ -17,6 +17,7 @@ const Videos = () => {
     const result = useSelector(state => state.search.result)
     const loading = useSelector(state => state.search.loading)
     const currentTab = useSelector(state => state.search.tab)
+    const collectionArray = useSelector(state => state.collection.collectionArray)
 
     const hasMore = useSelector(state => state.scrolling.hasMore)
     const videoPage = useSelector(state => state.scrolling.videoPage)
@@ -24,10 +25,10 @@ const Videos = () => {
     const sentinelRef = useRef(null)
     const [isFetching, setIsFetching] = useState(false)
 
-    const latestData = useRef({ result, videoPage })
+    const latestData = useRef({ result, videoPage, collectionArray })
     useEffect(() => {
-        latestData.current = { result, videoPage }
-    }, [result, videoPage])
+        latestData.current = { result, videoPage, collectionArray }
+    }, [result, videoPage, collectionArray])
 
 
     useEffect(() => {
@@ -39,7 +40,7 @@ const Videos = () => {
 
             setIsFetching(true)
             try {
-                const data = await getVideos(query, currentPage + 1)
+                const { data } = await fetchMediaData(query, 'videos', latestData.current.collectionArray, currentPage + 1)
 
                 if (data.length < 20) {
                     dispatch(setHasMore(false))
@@ -66,7 +67,7 @@ const Videos = () => {
         }
 
         return () => observer.disconnect()
-    }, [hasMore, query, currentTab, isFetching])
+    }, [hasMore, query, currentTab, isFetching, dispatch])
 
     return (
         <div className='relative w-screen mt-12 px-20 grid grid-cols-5 gap-y-8'>
@@ -102,7 +103,7 @@ const Videos = () => {
                     :
                     result.map((video, idx) => (
                         video?.video_files?.[0]?.link && (
-                            <MediaCard key={idx} id={video.id} src={video.video_files[0].link} />
+                            <MediaCard key={idx} id={video.id} isSaved={video.isAdded} src={video.video_files[0].link} />
                         )
                     ))
 

@@ -2,13 +2,14 @@ import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { NavLink } from 'react-router-dom'
 import { setResult, setTab, setLoading } from '../redux/slices/serachSlice'
-import { getGifs, getPhotos, getVideos } from '../api/mediaApi'
 import { resetPhotoPage, resetVideoPage, resetTenorNext, setNextPhotoPage, setNextVideoPage, setTenorNext } from '../redux/slices/infiniteScrolling'
+import { fetchMediaData } from '../utils/dataFetcher'
 
 const TabLinks = () => {
 
     const dispatch = useDispatch()
     const query = useSelector(state => state.search.query)
+    const collectionArray = useSelector(state => state.collection.collectionArray)
 
     async function handleTab(tabName) {
         dispatch(setTab(tabName))
@@ -17,19 +18,21 @@ const TabLinks = () => {
             
             if (tabName === 'photos') {
                 dispatch(resetPhotoPage())
-                dispatch(setResult(await getPhotos(query)))
+                const { data } = await fetchMediaData(query, 'photos', collectionArray)
+                dispatch(setResult(data))
                 dispatch(setNextPhotoPage())
             }
             else if (tabName === 'videos') {
                 dispatch(resetVideoPage())
-                dispatch(setResult(await getVideos(query)))
+                const { data } = await fetchMediaData(query, 'videos', collectionArray)
+                dispatch(setResult(data))
                 dispatch(setNextVideoPage())
             }
             else if (tabName === 'gifs') {
                 dispatch(resetTenorNext())
-                const { results, next } = await getGifs(query)
-                dispatch(setResult(results))
-                dispatch(setTenorNext(next))
+                const { data, nextToken } = await fetchMediaData(query, 'gifs', collectionArray)
+                dispatch(setResult(data))
+                dispatch(setTenorNext(nextToken))
             }
         }
     }

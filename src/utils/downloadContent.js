@@ -1,4 +1,4 @@
-export async function download(mediaUrl, extension, onProgress) {
+export async function download(mediaUrl, type, extension, onProgress) {
     try {
         // Notify user download is starting
         if (onProgress) onProgress('starting')
@@ -18,7 +18,7 @@ export async function download(mediaUrl, extension, onProgress) {
 
         const link = document.createElement('a')
         link.href = url
-        link.download = `glimpse-${Date.now()}.${extension}`
+        link.download = `glimpse-${type}-${Date.now()}.${extension}`
         document.body.appendChild(link) // Some browsers need this
         link.click()
         document.body.removeChild(link)

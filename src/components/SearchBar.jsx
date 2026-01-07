@@ -2,14 +2,15 @@ import { Search, X } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { setErrors, setLoading, setQuery, setResult } from '../redux/slices/serachSlice'
-import { getGifs, getPhotos, getVideos } from '../api/mediaApi'
 import { resetPhotoPage, resetVideoPage, setNextPhotoPage, setNextVideoPage, setTenorNext, resetTenorNext } from '../redux/slices/infiniteScrolling'
+import { fetchMediaData } from '../utils/dataFetcher'
 
 const SearchBar = () => {
 
     const dispatch = useDispatch()
     const currentTab = useSelector(state => state.search.tab)
     const savedQuery = useSelector(state => state.search.query)
+    const collectionArray = useSelector(state => state.collection.collectionArray)
     const [text, setText] = useState(savedQuery)
 
     // Sync local text with Redux query on mount
@@ -29,34 +30,33 @@ const SearchBar = () => {
                 e.preventDefault()
                 dispatch(setQuery(text))
                 dispatch(setLoading())
-                
+
                 // Reset pagination for new search
                 if (currentTab === 'photos') dispatch(resetPhotoPage())
                 else if (currentTab === 'videos') dispatch(resetVideoPage())
                 else if (currentTab === 'gifs') dispatch(resetTenorNext())
-                
+
                 try {
                     if (currentTab === 'photos') {
-                        dispatch(setResult(await getPhotos(text)))
+                        const { data } = await fetchMediaData(text, 'photos', collectionArray)
+                        dispatch(setResult(data))
                         dispatch(setNextPhotoPage())
                     }
                     else if (currentTab === 'videos') {
-                        dispatch(setResult(await getVideos(text)))
+                        const { data } = await fetchMediaData(text, 'videos', collectionArray)
+                        dispatch(setResult(data))
                         dispatch(setNextVideoPage())
                     }
                     else if (currentTab === 'gifs') {
-                        const { results, next } = await getGifs(text)
-                        dispatch(setResult(results))
-                        dispatch(setTenorNext(next))
+                        const { data, nextToken } = await fetchMediaData(text, 'gifs', collectionArray)
+                        dispatch(setResult(data))
+                        dispatch(setTenorNext(nextToken))
                     }
                 } catch (err) {
                     dispatch(setErrors(err))
                 }
-                console.log(await getPhotos(text)) //for confirmation
-                console.log(await getVideos(text)) //for confirmation
-                console.log(await getGifs(text)) //for confirmation
             }}
-            className="flex flex-row justify-center items-center gap-3">
+            className="flex flex-row justify-center items-center gap-3" >
             <div className="relative">
                 <div className="z-1 absolute top-1/2 -translate-y-1/2 left-3">
                     <Search size={16} className='text-white/40' />
@@ -82,7 +82,7 @@ const SearchBar = () => {
                 />
             </div>
             <button type='submit' className="px-6 py-2 bg-slate-800 rounded-full cursor-pointer text-white/60 font-medium text-sm">Search</button>
-        </form>
+        </form >
     )
 }
 

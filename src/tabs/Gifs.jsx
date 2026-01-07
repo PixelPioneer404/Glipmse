@@ -6,8 +6,8 @@ import getStartedAnimation from '../lottie/getStarted.lottie'
 import notFoundAnimation from '../lottie/notFound.lottie'
 import { DotLottieReact } from '@lottiefiles/dotlottie-react'
 import { setResult } from '../redux/slices/serachSlice'
-import { getGifs } from '../api/mediaApi'
 import { setHasMore, setTenorNext } from '../redux/slices/infiniteScrolling'
+import { fetchMediaData } from '../utils/dataFetcher'
 
 const Gifs = () => {
 
@@ -17,6 +17,7 @@ const Gifs = () => {
     const result = useSelector(state => state.search.result)
     const loading = useSelector(state => state.search.loading)
     const currentTab = useSelector(state => state.search.tab)
+    const collectionArray = useSelector(state => state.collection.collectionArray)
 
     const hasMore = useSelector(state => state.scrolling.hasMore)
     const tenorNext = useSelector(state => state.scrolling.tenorNext)
@@ -24,10 +25,10 @@ const Gifs = () => {
     const sentinelRef = useRef(null)
     const [isFetching, setIsFetching] = useState(false)
 
-    const latestData = useRef({ result, tenorNext })
+    const latestData = useRef({ result, tenorNext, collectionArray })
     useEffect(() => {
-        latestData.current = { result, tenorNext }
-    }, [result, tenorNext])
+        latestData.current = { result, tenorNext, collectionArray }
+    }, [result, tenorNext, collectionArray])
 
 
     useEffect(() => {
@@ -39,14 +40,14 @@ const Gifs = () => {
 
             setIsFetching(true)
             try {
-                const { results, next } = await getGifs(query, currentNext)
+                const { data, nextToken } = await fetchMediaData(query, 'gifs', latestData.current.collectionArray, currentNext)
 
-                if (!next || results.length === 0) {
+                if (!nextToken || data.length === 0) {
                     dispatch(setHasMore(false))
                 }
 
-                dispatch(setResult([...latestData.current.result, ...results]))
-                dispatch(setTenorNext(next))
+                dispatch(setResult([...latestData.current.result, ...data]))
+                dispatch(setTenorNext(nextToken))
             } catch (error) {
                 console.error('Error loading gifs:', error)
                 dispatch(setHasMore(false))
@@ -66,7 +67,7 @@ const Gifs = () => {
         }
 
         return () => observer.disconnect()
-    }, [hasMore, query, currentTab, isFetching])
+    }, [hasMore, query, currentTab, isFetching, dispatch])
 
     return (
         <div className='relative w-screen mt-12 px-20 grid grid-cols-5 gap-y-8'>
@@ -102,7 +103,7 @@ const Gifs = () => {
                     :
                     result.map((gif, idx) => (
                         gif?.media_formats?.gif?.url && (
-                            <MediaCard key={idx} id={gif.id} src={gif.media_formats.gif.url} />
+                            <MediaCard key={idx} id={gif.id} isSaved={gif.isAdded} src={gif.media_formats.gif.url} />
                         )
                     ))
 
