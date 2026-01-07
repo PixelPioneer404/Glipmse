@@ -112,6 +112,25 @@ const ViewImageModal = () => {
         };
     }, [])
 
+    // Handle mobile back button
+    useEffect(() => {
+        const handlePopState = () => {
+            if (isOpen) {
+                dispatch(setIsOpen(false))
+                window.history.pushState(null, '', window.location.href)
+            }
+        }
+
+        if (isOpen) {
+            window.history.pushState(null, '', window.location.href)
+            window.addEventListener('popstate', handlePopState)
+        }
+
+        return () => {
+            window.removeEventListener('popstate', handlePopState)
+        }
+    }, [isOpen, dispatch])
+
     function getExtension(currentTab) {
         if (currentTab === 'photos') return 'jpg'
         else if (currentTab === 'videos') return 'mp4'
@@ -128,9 +147,9 @@ const ViewImageModal = () => {
     }
 
     return (
-        <div ref={containerRef} className="w-screen h-screen pointer-events-none fixed flex justify-center items-center z-9998 px-4 md:px-[10vw] py-4 md:py-[10vh]">
+        <div ref={containerRef} className="w-screen h-screen pointer-events-none fixed flex justify-center items-center z-9998 px-4 md:px-[10vw] py-4 md:py-[10vh] overflow-hidden">
             <div ref={overlayRef} onClick={() => dispatch(setIsOpen(false))} className="opacity-0 absolute inset-0 bg-black/20 backdrop-blur-xl" />
-            <div ref={actionsRef} className="opacity-0 size-full relative z-9999 rounded-2xl md:rounded-4xl flex flex-col">
+            <div ref={actionsRef} className="opacity-0 w-full h-full md:size-full relative z-9999 rounded-2xl md:rounded-4xl flex flex-col justify-center items-center">
                 {/* Desktop buttons - top right */}
                 <div className="hidden md:flex absolute top-2 right-0 translate-x-[150%] flex-col justify-center items-center gap-3 *:cursor-pointer *:transition-all *:duration-300 *:ease-in-out">
                     <button
@@ -194,15 +213,15 @@ const ViewImageModal = () => {
                         />
                     }
                 </div>
-                <div ref={imgContainerRef} className="scale-60 opacity-0 w-auto h-full flex flex-col justify-center items-center">
-                    <div className="flex-1 flex justify-center items-center p-1.5 md:p-2 bg-white/80 rounded-2xl md:rounded-3xl w-full">
+                <div ref={imgContainerRef} className="scale-60 opacity-0 w-full md:w-auto h-auto md:h-full flex flex-col justify-center items-center max-h-[85vh] md:max-h-full">
+                    <div className="flex justify-center items-center p-3 md:p-2 bg-white/90 rounded-2xl md:rounded-3xl w-full max-w-full">
                         {(() => {
                             const item = dataSource.find(el => el.id === clickedId)
                             const mediaType = item?.type || currentTab
 
                             return (mediaType === 'photos' || mediaType === 'gifs')
-                                ? <img onLoad={() => setIsMediaLoaded(true)} src={src} className={`${isMediaLoaded ? 'block' : 'hidden'} h-full object-center object-contain rounded-xl md:rounded-[20px] group-hover:scale-110 transition-all duration-300 ease-in-out`} />
-                                : <video onLoadedData={() => setIsMediaLoaded(true)} src={src} autoPlay muted loop className={`${isMediaLoaded ? 'block' : 'hidden'} h-full object-center rounded-xl md:rounded-[20px] object-contain group-hover:scale-110 transition-all duration-300 ease-in-out`}></video>
+                                ? <img onLoad={() => setIsMediaLoaded(true)} src={src} className={`${isMediaLoaded ? 'block' : 'hidden'} max-h-[60vh] md:h-full w-auto max-w-full object-center object-contain rounded-xl md:rounded-[20px]`} />
+                                : <video onLoadedData={() => setIsMediaLoaded(true)} src={src} autoPlay muted loop className={`${isMediaLoaded ? 'block' : 'hidden'} max-h-[60vh] md:h-full w-auto max-w-full object-center rounded-xl md:rounded-[20px] object-contain`}></video>
                         })()}
                     </div>
                     
